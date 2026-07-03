@@ -50,9 +50,9 @@ func RunCLI() error {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println()
-	fmt.Println("╔═══════════════════════════════════════════╗")
-	fmt.Println("║       Sub2API Installation Wizard         ║")
-	fmt.Println("╚═══════════════════════════════════════════╝")
+	fmt.Println("+-------------------------------------------+")
+	fmt.Println("|       ColdAPI Installation Wizard         |")
+	fmt.Println("+-------------------------------------------+")
 	fmt.Println()
 
 	cfg := &SetupConfig{
