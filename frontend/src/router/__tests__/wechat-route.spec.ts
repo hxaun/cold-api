@@ -44,6 +44,14 @@ vi.mock('@/composables/useRoutePrefetch', () => ({
 }))
 
 describe('router WeChat OAuth route', () => {
+  it('uses dashboard as the default route and does not register the home route', async () => {
+    const { default: router } = await import('@/router')
+    const rootRoute = router.getRoutes().find((record) => record.path === '/')
+
+    expect(rootRoute?.redirect).toBe('/dashboard')
+    expect(router.getRoutes().find((record) => record.name === 'Home')).toBeUndefined()
+  })
+
   it('registers the WeChat callback route as a public route', async () => {
     const { default: router } = await import('@/router')
     const route = router.getRoutes().find((record) => record.name === 'WeChatOAuthCallback')

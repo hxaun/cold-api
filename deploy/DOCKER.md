@@ -8,7 +8,7 @@ Sub2API is an AI API Gateway Platform for distributing and managing AI product s
 docker run -d \
   --name sub2api \
   -p 8080:8080 \
-  -e DATABASE_URL="postgres://user:pass@host:5432/sub2api" \
+  -e DATABASE_URL="postgres://user:pass@host:5432/cold_api" \
   -e REDIS_URL="redis://host:6379" \
   weishaw/sub2api:latest
 ```
@@ -24,7 +24,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@db:5432/sub2api?sslmode=disable
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/cold_api?sslmode=disable
       - REDIS_URL=redis://redis:6379
     depends_on:
       - db
@@ -35,7 +35,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=sub2api
+      - POSTGRES_DB=cold_api
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

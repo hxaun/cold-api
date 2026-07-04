@@ -798,7 +798,7 @@ database:
   password: "your_secure_password_here"
   # Database name
   # 数据库名称
-  dbname: "sub2api"
+  dbname: "cold_api"
   # SSL mode: disable, prefer, require, verify-ca, verify-full
   # SSL 模式：disable（禁用）, prefer（优先加密，默认）, require（要求）, verify-ca（验证CA）, verify-full（完全验证）
   # 默认值为 "prefer"，数据库支持 SSL 时自动使用加密连接，不支持时回退明文
