@@ -1,16 +1,16 @@
-# Sub2API Docker Image
+# ColdAPI Docker Image
 
-Sub2API is an AI API Gateway Platform for distributing and managing AI product subscription API quotas.
+ColdAPI is an AI API Gateway Platform for distributing and managing AI product subscription API quotas.
 
 ## Quick Start
 
 ```bash
 docker run -d \
-  --name sub2api \
+  --name coldapi \
   -p 8080:8080 \
   -e DATABASE_URL="postgres://user:pass@host:5432/cold_api" \
   -e REDIS_URL="redis://host:6379" \
-  weishaw/sub2api:latest
+  coldapi:latest
 ```
 
 ## Docker Compose
@@ -19,8 +19,8 @@ docker run -d \
 version: '3.8'
 
 services:
-  sub2api:
-    image: weishaw/sub2api:latest
+  coldapi:
+    image: coldapi:latest
     ports:
       - "8080:8080"
     environment:
