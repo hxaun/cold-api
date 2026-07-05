@@ -135,13 +135,13 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - cold-api-network
+      - coldapi-network
 
 volumes:
   coldapi_data:
     driver: local
 
 networks:
-  cold-api-network:
-    name: cold-api-network
-    driver: bridge
+  coldapi-network:
+    external: true
+    name: coldapi-network

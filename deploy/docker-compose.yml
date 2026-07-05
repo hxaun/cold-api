@@ -167,7 +167,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - cold-api-network
+      - coldapi-network
     healthcheck:
       test:
         [
@@ -208,7 +208,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-cold_api}
       - TZ=${TZ:-Asia/Shanghai}
     networks:
-      - cold-api-network
+      - coldapi-network
     healthcheck:
       test:
         [
@@ -247,7 +247,7 @@ services:
       # REDISCLI_AUTH is used by redis-cli for authentication (safer than -a flag)
       - REDISCLI_AUTH=${REDIS_PASSWORD:-}
     networks:
-      - cold-api-network
+      - coldapi-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -271,5 +271,6 @@ volumes:
 # Networks
 # =============================================================================
 networks:
-  cold-api-network:
-    driver: bridge
+  coldapi-network:
+    external: true
+    name: coldapi-network
