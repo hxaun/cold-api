@@ -22,7 +22,10 @@ if [ ! -f "${SCRIPT_DIR}/${ENV_FILE}" ]; then
     exit 1
 fi
 
-echo "[1/3] Building image: ${IMAGE_NAME}"
+echo "[1/4] Pulling latest code"
+git -C "${REPO_ROOT}" pull
+
+echo "[2/4] Building image: ${IMAGE_NAME}"
 docker build \
     -t "${IMAGE_NAME}" \
     --build-arg GOPROXY="${GOPROXY_VALUE}" \
@@ -30,13 +33,13 @@ docker build \
     -f "${REPO_ROOT}/Dockerfile" \
     "${REPO_ROOT}"
 
-echo "[2/3] Recreating services with ${COMPOSE_FILE}"
+echo "[3/4] Recreating services with ${COMPOSE_FILE}"
 docker compose \
     --env-file "${SCRIPT_DIR}/${ENV_FILE}" \
     -f "${SCRIPT_DIR}/${COMPOSE_FILE}" \
     up -d --force-recreate --remove-orphans
 
-echo "[3/3] Current service status"
+echo "[4/4] Current service status"
 docker compose \
     --env-file "${SCRIPT_DIR}/${ENV_FILE}" \
     -f "${SCRIPT_DIR}/${COMPOSE_FILE}" \

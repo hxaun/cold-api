@@ -209,6 +209,17 @@ const routes: RouteRecordRaw[] = [
     }
   },
   {
+    path: '/help',
+    name: 'HelpCenter',
+    component: () => import('@/views/user/HelpCenterView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: false,
+      title: 'Help Center',
+      titleKey: 'nav.helpCenter'
+    }
+  },
+  {
     path: '/redeem',
     name: 'Redeem',
     component: () => import('@/views/user/RedeemView.vue'),
