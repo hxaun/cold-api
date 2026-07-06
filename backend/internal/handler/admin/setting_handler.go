@@ -3132,7 +3132,7 @@ func (h *SettingHandler) SendTestEmail(c *gin.Context) {
 `
 
 	if err := h.emailService.SendEmailWithConfig(config, req.Email, subject, body); err != nil {
-		response.BadRequest(c, "Failed to send test email: "+err.Error())
+		response.Error(c, http.StatusServiceUnavailable, "Failed to send test email: "+err.Error())
 		return
 	}
 

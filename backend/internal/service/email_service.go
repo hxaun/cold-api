@@ -201,10 +201,17 @@ func (s *EmailService) SendEmailWithConfig(config *SMTPConfig, to, subject, body
 	auth := smtp.PlainAuth("", config.Username, config.Password, config.Host)
 
 	if config.UseTLS {
-		return s.sendMailTLS(addr, auth, config.From, to, []byte(msg), config.Host)
+		if config.Port == 465 {
+			return s.sendMailTLS(addr, auth, config.From, to, []byte(msg), config.Host)
+		}
+		return s.sendMailStartTLS(addr, auth, config.From, to, []byte(msg), config.Host)
 	}
 
 	return s.sendMailPlain(addr, auth, config.From, to, []byte(msg), config.Host)
+}
+
+func smtpTLSConfig(host string) *tls.Config {
+	return &tls.Config{ServerName: host, MinVersion: tls.VersionTLS12}
 }
 
 // sendMailPlain sends mail without TLS using a dialer with timeout.
@@ -226,7 +233,7 @@ func (s *EmailService) sendMailPlain(addr string, auth smtp.Auth, from, to strin
 	// Opportunistic STARTTLS: upgrade to encrypted connection if the server supports it.
 	// This mirrors the behavior of smtp.SendMail which we replaced for timeout support.
 	if ok, _ := client.Extension("STARTTLS"); ok {
-		if err = client.StartTLS(&tls.Config{ServerName: host, MinVersion: tls.VersionTLS12}); err != nil {
+		if err = client.StartTLS(smtpTLSConfig(host)); err != nil {
 			return fmt.Errorf("starttls: %w", err)
 		}
 	}
@@ -509,6 +516,53 @@ func (s *EmailService) GeneratePasswordResetToken() (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(bytes), nil
+}
+
+// sendMailStartTLS sends mail over a plaintext SMTP connection upgraded with STARTTLS.
+func (s *EmailService) sendMailStartTLS(addr string, auth smtp.Auth, from, to string, msg []byte, host string) error {
+	dialer := &net.Dialer{Timeout: smtpDialTimeout}
+	conn, err := dialer.Dial("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("smtp dial: %w", err)
+	}
+	_ = conn.SetDeadline(time.Now().Add(smtpIOTimeout))
+	defer func() { _ = conn.Close() }()
+
+	client, err := smtp.NewClient(conn, host)
+	if err != nil {
+		return fmt.Errorf("new smtp client: %w", err)
+	}
+	defer func() { _ = client.Close() }()
+
+	if ok, _ := client.Extension("STARTTLS"); !ok {
+		return fmt.Errorf("starttls: server does not support STARTTLS")
+	}
+	if err = client.StartTLS(smtpTLSConfig(host)); err != nil {
+		return fmt.Errorf("starttls: %w", err)
+	}
+
+	if err = client.Auth(auth); err != nil {
+		return fmt.Errorf("smtp auth: %w", err)
+	}
+	if err = client.Mail(from); err != nil {
+		return fmt.Errorf("smtp mail: %w", err)
+	}
+	if err = client.Rcpt(to); err != nil {
+		return fmt.Errorf("smtp rcpt: %w", err)
+	}
+
+	w, err := client.Data()
+	if err != nil {
+		return fmt.Errorf("smtp data: %w", err)
+	}
+	if _, err = w.Write(msg); err != nil {
+		return fmt.Errorf("write msg: %w", err)
+	}
+	if err = w.Close(); err != nil {
+		return fmt.Errorf("close writer: %w", err)
+	}
+	_ = client.Quit()
+	return nil
 }
 
 // SendPasswordResetEmail sends a password reset email with a reset link
