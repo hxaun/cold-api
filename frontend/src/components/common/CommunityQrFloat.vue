@@ -1,10 +1,63 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import communityQrUrl from '@/assets/community-qr.png'
 
 const isOpen = ref(false)
+const floatButton = ref<HTMLButtonElement | null>(null)
+const position = reactive({ x: 0, y: 0 })
+const hasPosition = ref(false)
+const didDrag = ref(false)
+const dragState = reactive({
+  active: false,
+  pointerId: 0,
+  startX: 0,
+  startY: 0,
+  offsetX: 0,
+  offsetY: 0,
+})
+
+const EDGE_GAP = 16
+const DEFAULT_BOTTOM_GAP = 88
+
+const floatStyle = computed(() => {
+  if (!hasPosition.value) {
+    return undefined
+  }
+
+  return {
+    left: `${position.x}px`,
+    top: `${position.y}px`,
+  }
+})
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max)
+}
+
+function setPosition(x: number, y: number) {
+  const rect = floatButton.value?.getBoundingClientRect()
+  const width = rect?.width ?? 68
+  const height = rect?.height ?? 86
+
+  position.x = clamp(x, EDGE_GAP, Math.max(EDGE_GAP, window.innerWidth - width - EDGE_GAP))
+  position.y = clamp(y, EDGE_GAP, Math.max(EDGE_GAP, window.innerHeight - height - EDGE_GAP))
+}
+
+function setDefaultPosition() {
+  const rect = floatButton.value?.getBoundingClientRect()
+  const width = rect?.width ?? 68
+  const height = rect?.height ?? 86
+
+  setPosition(window.innerWidth - width - EDGE_GAP, window.innerHeight - height - DEFAULT_BOTTOM_GAP)
+  hasPosition.value = true
+}
 
 function openQr() {
+  if (didDrag.value) {
+    didDrag.value = false
+    return
+  }
+
   isOpen.value = true
 }
 
@@ -18,27 +71,88 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
+function onPointerDown(event: PointerEvent) {
+  if (event.button !== 0) {
+    return
+  }
+
+  const rect = floatButton.value?.getBoundingClientRect()
+  if (!rect) {
+    return
+  }
+
+  dragState.active = true
+  dragState.pointerId = event.pointerId
+  dragState.startX = event.clientX
+  dragState.startY = event.clientY
+  dragState.offsetX = event.clientX - rect.left
+  dragState.offsetY = event.clientY - rect.top
+  didDrag.value = false
+  floatButton.value?.setPointerCapture(event.pointerId)
+}
+
+function onPointerMove(event: PointerEvent) {
+  if (!dragState.active || event.pointerId !== dragState.pointerId) {
+    return
+  }
+
+  const distance = Math.hypot(event.clientX - dragState.startX, event.clientY - dragState.startY)
+  if (distance > 4) {
+    didDrag.value = true
+  }
+
+  setPosition(event.clientX - dragState.offsetX, event.clientY - dragState.offsetY)
+}
+
+function stopDrag(event: PointerEvent) {
+  if (!dragState.active || event.pointerId !== dragState.pointerId) {
+    return
+  }
+
+  dragState.active = false
+  floatButton.value?.releasePointerCapture(event.pointerId)
+}
+
+function onResize() {
+  if (!hasPosition.value) {
+    setDefaultPosition()
+    return
+  }
+
+  setPosition(position.x, position.y)
+}
+
 watch(isOpen, (open) => {
   document.body.classList.toggle('modal-open', open)
 })
 
 onMounted(() => {
   window.addEventListener('keydown', onKeydown)
+  window.addEventListener('resize', onResize)
+  nextTick(setDefaultPosition)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
+  window.removeEventListener('resize', onResize)
   document.body.classList.remove('modal-open')
 })
 </script>
 
 <template>
   <button
+    ref="floatButton"
     class="community-qr-float"
+    :class="{ 'is-dragging': dragState.active }"
+    :style="floatStyle"
     type="button"
     title="交流群"
     aria-label="交流群"
     @click="openQr"
+    @pointerdown="onPointerDown"
+    @pointermove="onPointerMove"
+    @pointerup="stopDrag"
+    @pointercancel="stopDrag"
   >
     <img :src="communityQrUrl" alt="交流群二维码" />
   </button>
@@ -49,7 +163,7 @@ onBeforeUnmount(() => {
         <div class="community-qr-dialog">
           <button class="community-qr-close" type="button" aria-label="关闭" @click="closeQr">×</button>
           <img :src="communityQrUrl" alt="交流群二维码大图" />
-          <p>扫描加群</p>
+          <p>如遇问题进群联系管理员，QQ群:1053752295</p>
         </div>
       </div>
     </Transition>
@@ -60,7 +174,7 @@ onBeforeUnmount(() => {
 .community-qr-float {
   position: fixed;
   right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
+  bottom: max(5.5rem, env(safe-area-inset-bottom));
   z-index: 45;
   width: 4.25rem;
   aspect-ratio: 438 / 549;
@@ -70,12 +184,20 @@ onBeforeUnmount(() => {
   background: rgb(255 255 255 / 0.75);
   box-shadow: 0 12px 30px rgb(15 23 42 / 0.18);
   cursor: pointer;
+  touch-action: none;
+  user-select: none;
   opacity: 0.72;
   padding: 0;
   transition:
     opacity 160ms ease,
     transform 160ms ease,
     box-shadow 160ms ease;
+}
+
+.community-qr-float.is-dragging {
+  cursor: grabbing;
+  opacity: 1;
+  transition: none;
 }
 
 .community-qr-float:hover,
