@@ -6,7 +6,7 @@ const isOpen = ref(false)
 const floatButton = ref<HTMLButtonElement | null>(null)
 const position = reactive({ x: 0, y: 0 })
 const hasPosition = ref(false)
-const didDrag = ref(false)
+const suppressNextClick = ref(false)
 const dragState = reactive({
   active: false,
   pointerId: 0,
@@ -14,6 +14,7 @@ const dragState = reactive({
   startY: 0,
   offsetX: 0,
   offsetY: 0,
+  moved: false,
 })
 
 const EDGE_GAP = 16
@@ -27,6 +28,8 @@ const floatStyle = computed(() => {
   return {
     left: `${position.x}px`,
     top: `${position.y}px`,
+    right: 'auto',
+    bottom: 'auto',
   }
 })
 
@@ -53,8 +56,8 @@ function setDefaultPosition() {
 }
 
 function openQr() {
-  if (didDrag.value) {
-    didDrag.value = false
+  if (suppressNextClick.value) {
+    suppressNextClick.value = false
     return
   }
 
@@ -87,8 +90,15 @@ function onPointerDown(event: PointerEvent) {
   dragState.startY = event.clientY
   dragState.offsetX = event.clientX - rect.left
   dragState.offsetY = event.clientY - rect.top
-  didDrag.value = false
-  floatButton.value?.setPointerCapture(event.pointerId)
+  dragState.moved = false
+  suppressNextClick.value = false
+  hasPosition.value = true
+
+  setPosition(rect.left, rect.top)
+  window.addEventListener('pointermove', onPointerMove)
+  window.addEventListener('pointerup', stopDrag)
+  window.addEventListener('pointercancel', stopDrag)
+  event.preventDefault()
 }
 
 function onPointerMove(event: PointerEvent) {
@@ -98,10 +108,12 @@ function onPointerMove(event: PointerEvent) {
 
   const distance = Math.hypot(event.clientX - dragState.startX, event.clientY - dragState.startY)
   if (distance > 4) {
-    didDrag.value = true
+    dragState.moved = true
+    suppressNextClick.value = true
   }
 
   setPosition(event.clientX - dragState.offsetX, event.clientY - dragState.offsetY)
+  event.preventDefault()
 }
 
 function stopDrag(event: PointerEvent) {
@@ -110,7 +122,15 @@ function stopDrag(event: PointerEvent) {
   }
 
   dragState.active = false
-  floatButton.value?.releasePointerCapture(event.pointerId)
+  suppressNextClick.value = dragState.moved
+  if (dragState.moved) {
+    window.setTimeout(() => {
+      suppressNextClick.value = false
+    }, 0)
+  }
+  window.removeEventListener('pointermove', onPointerMove)
+  window.removeEventListener('pointerup', stopDrag)
+  window.removeEventListener('pointercancel', stopDrag)
 }
 
 function onResize() {
@@ -135,6 +155,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onKeydown)
   window.removeEventListener('resize', onResize)
+  window.removeEventListener('pointermove', onPointerMove)
+  window.removeEventListener('pointerup', stopDrag)
+  window.removeEventListener('pointercancel', stopDrag)
   document.body.classList.remove('modal-open')
 })
 </script>
@@ -150,9 +173,6 @@ onBeforeUnmount(() => {
     aria-label="交流群"
     @click="openQr"
     @pointerdown="onPointerDown"
-    @pointermove="onPointerMove"
-    @pointerup="stopDrag"
-    @pointercancel="stopDrag"
   >
     <img :src="communityQrUrl" alt="交流群二维码" />
   </button>
@@ -200,8 +220,8 @@ onBeforeUnmount(() => {
   transition: none;
 }
 
-.community-qr-float:hover,
-.community-qr-float:focus-visible {
+.community-qr-float:not(.is-dragging):hover,
+.community-qr-float:not(.is-dragging):focus-visible {
   opacity: 1;
   transform: translateY(-2px);
   box-shadow: 0 16px 36px rgb(15 23 42 / 0.24);

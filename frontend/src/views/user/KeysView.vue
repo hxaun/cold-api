@@ -72,6 +72,21 @@
               </button>
             </div>
           </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <code
+              class="rounded-md border border-gray-200 bg-white/80 px-2.5 py-1 font-mono text-[11px] leading-5 text-gray-600 shadow-sm dark:border-dark-600 dark:bg-dark-800/80 dark:text-gray-300"
+            >base_url = "{{ displayBaseUrl }}"</code>
+            <button
+              type="button"
+              class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-white hover:text-primary-500 dark:text-gray-500 dark:hover:bg-dark-800 dark:hover:text-primary-400"
+              :class="copiedBaseUrl ? 'text-emerald-500 dark:text-emerald-400' : ''"
+              :title="copiedBaseUrl ? t('keys.copied') : t('keys.copyToClipboard')"
+              @click="copyBaseUrl"
+            >
+              <Icon v-if="copiedBaseUrl" name="check" size="xs" :stroke-width="2" />
+              <Icon v-else name="clipboard" size="xs" />
+            </button>
+          </div>
           <EndpointPopover
             v-if="publicSettings?.api_base_url || (publicSettings?.custom_endpoints?.length ?? 0) > 0"
             :api-base-url="publicSettings?.api_base_url || ''"
@@ -1150,6 +1165,7 @@ interface GroupOption {
 const appStore = useAppStore()
 const onboardingStore = useOnboardingStore()
 const { copyToClipboard: clipboardCopy } = useClipboard()
+const displayBaseUrl = 'https://coldapi.site'
 
 const allColumns = computed<Column[]>(() => [
   { key: 'name', label: t('common.name'), sortable: true },
@@ -1261,6 +1277,7 @@ const showColumnDropdown = ref(false)
 const pendingCcsRow = ref<ApiKey | null>(null)
 const selectedKey = ref<ApiKey | null>(null)
 const copiedKeyId = ref<number | null>(null)
+const copiedBaseUrl = ref(false)
 const groupSelectorKeyId = ref<number | null>(null)
 const publicSettings = ref<PublicSettings | null>(null)
 const dropdownRef = ref<HTMLElement | null>(null)
@@ -1398,6 +1415,16 @@ const copyToClipboard = async (text: string, keyId: number) => {
     setTimeout(() => {
       copiedKeyId.value = null
     }, 800)
+  }
+}
+
+const copyBaseUrl = async () => {
+  const success = await clipboardCopy(displayBaseUrl, t('keys.copied'))
+  if (success) {
+    copiedBaseUrl.value = true
+    window.setTimeout(() => {
+      copiedBaseUrl.value = false
+    }, 1200)
   }
 }
 
