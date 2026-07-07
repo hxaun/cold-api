@@ -98,9 +98,12 @@
           <CodeBlock title="config.toml" :code="codexConfig" />
         </div>
 
-        <div class="grid gap-4 lg:grid-cols-2">
-          <CodeBlock title="Windows 设置 Key" :code="windowsKey" />
-          <CodeBlock title="macOS / Linux 设置 Key" :code="unixKey" />
+        <div class="space-y-3">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Codex Auth 配置</h3>
+          <p class="text-sm text-gray-500 dark:text-dark-400">
+            打开 <InlineCode>~/.codex/auth.json</InlineCode>，Windows 路径通常是 <InlineCode>%USERPROFILE%\.codex\auth.json</InlineCode>。如果文件不存在，请新建该文件。
+          </p>
+          <CodeBlock title="auth.json" :code="codexAuth" />
         </div>
 
         <div class="space-y-3">
@@ -129,7 +132,7 @@
       </section>
 
       <section id="faq" class="scroll-mt-24 space-y-4">
-        <SectionHeader number="4" title="常见问题" description="遇到报错时，优先检查 Base URL、API Key、模型名和当前终端环境变量。" />
+        <SectionHeader number="4" title="常见问题" description="遇到报错时，优先检查 Base URL、API Key、模型名和 auth.json 文件。" />
 
         <div class="space-y-3">
           <details
@@ -186,11 +189,11 @@ model_provider = "coldapi"
 [model_providers.coldapi]
 name = "ColdAPI"
 base_url = "https://coldapi.site/v1"
-env_key = "COLDAPI_API_KEY"
-wire_api = "responses"`
-const windowsKey = `$env:COLDAPI_API_KEY="sk-你的中转站密钥"
-setx COLDAPI_API_KEY "sk-你的中转站密钥"`
-const unixKey = 'export COLDAPI_API_KEY="sk-你的中转站密钥"'
+wire_api = "responses"
+requires_openai_auth = true`
+const codexAuth = `{
+  "OPENAI_API_KEY": "sk-你的中转站密钥"
+}`
 const curlTest = `curl https://coldapi.site/v1/responses \\
   -H "Authorization: Bearer sk-你的中转站密钥" \\
   -H "Content-Type: application/json" \\
@@ -206,7 +209,7 @@ const sections: SectionNavItem[] = [
 const faqs: FaqItem[] = [
   {
     question: '401 / Unauthorized',
-    answer: '检查 API Key 是否复制完整、是否过期、环境变量是否在当前终端生效。Windows 使用 setx 后需要重新打开终端。',
+    answer: '检查 API Key 是否复制完整、是否过期，以及 auth.json 是否保存到正确路径。',
     open: true,
   },
   {
@@ -219,7 +222,7 @@ const faqs: FaqItem[] = [
   },
   {
     question: 'Codex 配置没有生效',
-    answer: '检查 model_provider 是否为 coldapi，检查 COLDAPI_API_KEY 是否存在，保存配置后重新打开终端。',
+    answer: '检查 model_provider 是否为 coldapi，检查 requires_openai_auth 是否为 true，以及 auth.json 中是否存在 OPENAI_API_KEY。',
   },
   {
     question: '是否支持 Claude Code / Anthropic？',
