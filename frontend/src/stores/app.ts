@@ -360,6 +360,7 @@ export const useAppStore = defineStore('app', () => {
         risk_control_enabled: false,
         service_quota_enabled: false,
         affiliate_enabled: false,
+        affiliate_rebate_per_invitee_cap: 0,
         allow_user_view_error_requests: false,
       }
     }

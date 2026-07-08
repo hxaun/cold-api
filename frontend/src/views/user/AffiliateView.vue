@@ -46,7 +46,7 @@
 
         <div class="card p-6">
           <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ t('affiliate.title') }}</h3>
-          <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ t('affiliate.description') }}</p>
+          <p class="mt-1 text-sm text-gray-500 dark:text-dark-400">{{ affiliateDescription }}</p>
 
           <div class="mt-5 grid gap-4 md:grid-cols-2">
             <div class="space-y-2">
@@ -173,6 +173,20 @@ const formattedRebateRate = computed(() => {
   const v = detail.value?.effective_rebate_rate_percent ?? 0
   const rounded = Math.round(v * 100) / 100
   return Number.isInteger(rounded) ? String(rounded) : rounded.toString()
+})
+
+const affiliatePerInviteeCap = computed(() => {
+  const cap = appStore.cachedPublicSettings?.affiliate_rebate_per_invitee_cap ?? 0
+  return Number.isFinite(cap) && cap > 0 ? cap : 0
+})
+
+const affiliateDescription = computed(() => {
+  if (affiliatePerInviteeCap.value <= 0) {
+    return t('affiliate.description')
+  }
+  return t('affiliate.descriptionWithCap', {
+    cap: formatCurrency(affiliatePerInviteeCap.value),
+  })
 })
 
 function formatCount(value: number): string {

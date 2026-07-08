@@ -1154,6 +1154,7 @@ export default {
   affiliate: {
     title: '邀请返利',
     description: '邀请新用户注册，并将返利额度转入账户余额',
+    descriptionWithCap: '邀请新用户注册，并将返利额度转入账户余额，每个被邀请的用户最多返利{cap}。',
     yourCode: '我的邀请码',
     inviteLink: '邀请链接',
     copyCode: '复制邀请码',

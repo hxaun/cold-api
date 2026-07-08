@@ -98,7 +98,8 @@ func (h *SettingHandler) GetPublicSettings(c *gin.Context) {
 
 		AvailableChannelsEnabled: settings.AvailableChannelsEnabled,
 
-		AffiliateEnabled: settings.AffiliateEnabled,
+		AffiliateEnabled:             settings.AffiliateEnabled,
+		AffiliateRebatePerInviteeCap: settings.AffiliateRebatePerInviteeCap,
 
 		RiskControlEnabled: settings.RiskControlEnabled,
 

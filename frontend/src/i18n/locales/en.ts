@@ -1150,6 +1150,7 @@ export default {
   affiliate: {
     title: 'Affiliate Rebates',
     description: 'Invite new users and convert your rebate quota into account balance',
+    descriptionWithCap: 'Invite new users and convert your rebate quota into account balance. Each invitee can generate up to {cap} in rebates.',
     yourCode: 'Your Affiliate Code',
     inviteLink: 'Invite Link',
     copyCode: 'Copy Code',
