@@ -228,7 +228,14 @@
           </template>
 
           <template #cell-account_count="{ row }">
-            <div class="space-y-0.5 text-xs">
+            <button
+              type="button"
+              class="w-full rounded-md px-1 py-1 text-left transition-colors hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500/40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:hover:bg-primary-900/20"
+              :class="(row.account_count || 0) > 0 ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'"
+              :disabled="(row.account_count || 0) <= 0"
+              @click.stop="openGroupAccountsModal(row)"
+            >
+              <div class="space-y-0.5 text-xs">
               <div>
                 <span class="text-gray-500 dark:text-gray-400">{{
                   t("admin.groups.accountsAvailable")
@@ -268,7 +275,8 @@
                   >{{ t("admin.groups.accountsUnit") }}</span
                 >
               </div>
-            </div>
+              </div>
+            </button>
           </template>
 
           <template #cell-capacity="{ row }">
@@ -3157,6 +3165,137 @@
     </BaseDialog>
 
     <!-- Group Rate Multipliers Modal -->
+    <BaseDialog
+      :show="showAccountsModal"
+      :title="selectedAccountsGroup ? `${selectedAccountsGroup.name} - 账号信息` : '账号信息'"
+      width="wide"
+      @close="closeGroupAccountsModal"
+    >
+      <div class="space-y-4">
+        <div
+          v-if="selectedAccountsGroup"
+          class="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm dark:border-dark-600 dark:bg-dark-700/40 sm:grid-cols-3"
+        >
+          <div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">分组</div>
+            <div class="mt-1 font-medium text-gray-900 dark:text-white">
+              {{ selectedAccountsGroup.name }}
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">平台</div>
+            <div class="mt-1">
+              {{ t("admin.groups.platforms." + selectedAccountsGroup.platform) }}
+            </div>
+          </div>
+          <div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">账号</div>
+            <div class="mt-1">
+              可用 {{ selectedAccountsGroup.active_account_count || 0 }} / 总量
+              {{ selectedAccountsGroup.account_count || 0 }}
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-if="accountsModalLoading"
+          class="flex min-h-32 items-center justify-center text-sm text-gray-500 dark:text-gray-400"
+        >
+          加载账号中...
+        </div>
+        <div
+          v-else-if="accountsModalAccounts.length === 0"
+          class="flex min-h-32 items-center justify-center rounded-lg border border-dashed border-gray-200 text-sm text-gray-500 dark:border-dark-600 dark:text-gray-400"
+        >
+          暂无账号
+        </div>
+        <div v-else class="overflow-hidden rounded-lg border border-gray-200 dark:border-dark-600">
+          <div class="max-h-[60vh] overflow-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-dark-600">
+              <thead class="sticky top-0 bg-gray-50 dark:bg-dark-700">
+                <tr>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    名称
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    类型
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    状态
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    调度
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    优先级
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    并发
+                  </th>
+                  <th class="px-4 py-3 text-left font-medium text-gray-500 dark:text-gray-300">
+                    上次使用
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 bg-white dark:divide-dark-700 dark:bg-dark-800">
+                <tr
+                  v-for="account in accountsModalAccounts"
+                  :key="account.id"
+                  class="hover:bg-gray-50 dark:hover:bg-dark-700/50"
+                >
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900 dark:text-white">
+                      {{ account.name }}
+                    </div>
+                    <div v-if="account.notes" class="mt-0.5 max-w-xs truncate text-xs text-gray-500 dark:text-gray-400">
+                      {{ account.notes }}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                    {{ account.type }}
+                  </td>
+                  <td class="px-4 py-3">
+                    <span :class="['badge', getAccountStatusBadgeClass(account.status)]">
+                      {{ getAccountStatusLabel(account.status) }}
+                    </span>
+                    <div v-if="isAccountRateLimited(account)" class="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      限流至 {{ formatDateTime(account.rate_limit_reset_at) }}
+                    </div>
+                  </td>
+                  <td class="px-4 py-3">
+                    <span
+                      :class="[
+                        'badge',
+                        account.schedulable ? 'badge-success' : 'badge-gray',
+                      ]"
+                    >
+                      {{ account.schedulable ? '可调度' : '不可调度' }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                    {{ account.priority }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
+                    {{ account.current_concurrency ?? 0 }} / {{ account.concurrency }}
+                  </td>
+                  <td class="px-4 py-3 text-gray-500 dark:text-gray-400">
+                    {{ formatDateTime(account.last_used_at) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div
+          v-if="accountsModalTotal > accountsModalAccounts.length"
+          class="text-xs text-gray-500 dark:text-gray-400"
+        >
+          已显示前 {{ accountsModalAccounts.length }} 个账号，共 {{ accountsModalTotal }} 个。
+        </div>
+      </div>
+    </BaseDialog>
+
     <GroupRateMultipliersModal
       :show="showRateMultipliersModal"
       :group="rateMultipliersGroup"
@@ -3180,7 +3319,7 @@ import { useI18n } from "vue-i18n";
 import { useAppStore } from "@/stores/app";
 import { useOnboardingStore } from "@/stores/onboarding";
 import { adminAPI } from "@/api/admin";
-import type { AdminGroup, GroupPlatform, SubscriptionType } from "@/types";
+import type { Account, AdminGroup, GroupPlatform, SubscriptionType } from "@/types";
 import type { Column } from "@/components/common/types";
 import AppLayout from "@/components/layout/AppLayout.vue";
 import TablePageLayout from "@/components/layout/TablePageLayout.vue";
@@ -3522,6 +3661,11 @@ const showRateMultipliersModal = ref(false);
 const rateMultipliersGroup = ref<AdminGroup | null>(null);
 const showRPMOverridesModal = ref(false);
 const rpmOverridesGroup = ref<AdminGroup | null>(null);
+const showAccountsModal = ref(false);
+const selectedAccountsGroup = ref<AdminGroup | null>(null);
+const accountsModalAccounts = ref<Account[]>([]);
+const accountsModalLoading = ref(false);
+const accountsModalTotal = ref(0);
 const sortableGroups = ref<AdminGroup[]>([]);
 const createMessagesDispatchDefaults = createDefaultMessagesDispatchFormState();
 const editMessagesDispatchDefaults = createDefaultMessagesDispatchFormState();
@@ -4051,6 +4195,60 @@ const formatCost = (cost: number): string => {
   if (cost >= 1000) return cost.toFixed(0);
   if (cost >= 100) return cost.toFixed(1);
   return cost.toFixed(2);
+};
+
+const formatDateTime = (value: string | null | undefined): string => {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleString();
+};
+
+const getAccountStatusLabel = (status: Account["status"]): string => {
+  if (status === "active") return t("admin.accounts.status.active");
+  if (status === "inactive") return t("admin.accounts.status.inactive");
+  if (status === "error") return t("admin.accounts.status.error");
+  return status;
+};
+
+const getAccountStatusBadgeClass = (status: Account["status"]): string => {
+  if (status === "active") return "badge-success";
+  if (status === "inactive") return "badge-gray";
+  return "badge-danger";
+};
+
+const isAccountRateLimited = (account: Account): boolean => {
+  if (!account.rate_limit_reset_at) return false;
+  return new Date(account.rate_limit_reset_at).getTime() > Date.now();
+};
+
+const openGroupAccountsModal = async (group: AdminGroup) => {
+  selectedAccountsGroup.value = group;
+  showAccountsModal.value = true;
+  accountsModalLoading.value = true;
+  accountsModalAccounts.value = [];
+  accountsModalTotal.value = group.account_count || 0;
+  try {
+    const response = await adminAPI.accounts.list(1, 100, {
+      group: String(group.id),
+      sort_by: "priority",
+      sort_order: "asc",
+    });
+    accountsModalAccounts.value = response.items;
+    accountsModalTotal.value = response.total;
+  } catch (error) {
+    appStore.showError("加载账号信息失败");
+    console.error("Error loading group accounts:", error);
+  } finally {
+    accountsModalLoading.value = false;
+  }
+};
+
+const closeGroupAccountsModal = () => {
+  showAccountsModal.value = false;
+  selectedAccountsGroup.value = null;
+  accountsModalAccounts.value = [];
+  accountsModalTotal.value = 0;
 };
 
 const loadUsageSummary = async () => {
