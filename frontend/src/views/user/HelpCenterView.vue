@@ -90,8 +90,10 @@
           </div>
         </div>
 
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+        <div class="space-y-3">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式一：使用 cc-switch</h3>
+        </div>
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
           <ol class="mt-3 space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
             <li class="list-decimal">
               下载并安装 cc-switch：
@@ -123,18 +125,17 @@
           </figcaption>
         </figure>
 
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+        <div class="space-y-3">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动修改 .codex 文件</h3>
           <p class="mt-3 text-sm text-gray-500 dark:text-dark-400">
-            打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\config.toml</InlineCode>，按下面示例填写中转站配置。
+            1、打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\config.toml</InlineCode>，按下面示例填写中转站配置。
           </p>
           <CodeBlock title="config.toml" :code="codexConfig" />
         </div>
 
         <div class="space-y-3">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Codex Auth 配置</h3>
           <p class="text-sm text-gray-500 dark:text-dark-400">
-            打开 <InlineCode>~/.codex/auth.json</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\auth.json</InlineCode>。如果文件不存在，请新建该文件。
+            2、打开 <InlineCode>~/.codex/auth.json</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\auth.json</InlineCode>。如果文件不存在，请新建该文件。
           </p>
           <CodeBlock title="auth.json" :code="codexAuth" />
         </div>
@@ -222,9 +223,13 @@ const sections: SectionNavItem[] = [
 
 const faqs: FaqItem[] = [
   {
+    question: 'cc-switch 切换后 Codex 没有生效，还在请求旧地址',
+    answer: '切换 cc-switch 配置后，已经打开的 Codex 进程不会自动读取新配置。请完全退出当前 Codex 和终端窗口，重新打开终端后再运行 codex。',
+    open: true,
+  },
+  {
     question: '401 / Unauthorized',
     answer: '检查 API Key 是否复制完整、是否过期，以及 auth.json 是否保存到正确路径。',
-    open: true,
   },
   {
     question: '404 / endpoint not found',
@@ -235,17 +240,9 @@ const faqs: FaqItem[] = [
     answer: '模型名不正确或当前 Key 没有权限。请以中转站后台显示的模型名为准。',
   },
   {
-    question: 'Codex 配置没有生效',
-    answer: '检查 model_provider 是否为 coldapi，检查 requires_openai_auth 是否为 true，以及 auth.json 中是否存在 OPENAI_API_KEY。',
-  },
-  {
     question: '是否支持 Claude Code / Anthropic？',
     answer: '暂不支持。本页所有配置只针对 OpenAI 兼容接口。',
-  },
-  {
-    question: '可以把 Key 写进页面或提交到仓库吗？',
-    answer: '不可以。Key 只应放在本机环境变量、受保护的配置文件或系统后台中。',
-  },
+  }
 ]
 
 async function copyCode(code: string) {
