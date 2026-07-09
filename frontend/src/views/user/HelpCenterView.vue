@@ -20,7 +20,7 @@
             <div class="text-xs font-semibold uppercase text-primary-600 dark:text-primary-300">
               Base URL
             </div>
-            <code class="mt-1 block break-all font-mono text-primary-800 dark:text-primary-200">https://coldapi.site/v1</code>
+            <code class="mt-1 block break-all font-mono text-primary-800 dark:text-primary-200">https://coldapi.site</code>
           </div>
         </div>
       </header>
@@ -57,7 +57,7 @@
       </section>
 
       <section id="proxy" class="scroll-mt-24 space-y-4">
-        <SectionHeader number="2" title="配置中转站" description="ColdAPI 基于 sub2api 开发，请按 OpenAI 兼容接口使用，不要配置 Anthropic 相关环境变量。" />
+        <SectionHeader number="2" title="配置中转站" description="当前只支持openAI" />
 
         <div class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
           <div class="overflow-x-auto">
@@ -72,7 +72,7 @@
               <tbody class="divide-y divide-gray-100 text-gray-600 dark:divide-dark-700 dark:text-dark-300">
                 <tr>
                   <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">Base URL</td>
-                  <td class="px-4 py-3"><InlineCode>https://coldapi.site/v1</InlineCode></td>
+                  <td class="px-4 py-3"><InlineCode>https://coldapi.site</InlineCode></td>
                   <td class="px-4 py-3">用于 Codex、OpenAI SDK、curl 等 OpenAI 兼容客户端。</td>
                 </tr>
                 <tr>
@@ -104,42 +104,9 @@
                 https://github.com/farion1231/cc-switch/releases
               </a>
             </li>
-            <li class="list-decimal">打开 cc-switch 后，按下方 cc-switch 使用教程导入或手动填写 ColdAPI 配置。</li>
-            <li class="list-decimal">切换到 ColdAPI 配置后，重新打开终端再运行 <InlineCode>codex</InlineCode>。</li>
-          </ol>
-        </div>
-
-        <div class="space-y-3">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动修改 .codex 文件</h3>
-          <p class="text-sm text-gray-500 dark:text-dark-400">
-            打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>%USERPROFILE%\.codex\config.toml</InlineCode>，按下面示例填写中转站配置。
-          </p>
-          <CodeBlock title="config.toml" :code="codexConfig" />
-        </div>
-
-        <div class="space-y-3">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Codex Auth 配置</h3>
-          <p class="text-sm text-gray-500 dark:text-dark-400">
-            打开 <InlineCode>~/.codex/auth.json</InlineCode>，Windows 路径通常是 <InlineCode>%USERPROFILE%\.codex\auth.json</InlineCode>。如果文件不存在，请新建该文件。
-          </p>
-          <CodeBlock title="auth.json" :code="codexAuth" />
-        </div>
-
-        <div class="space-y-3">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">连通性测试</h3>
-          <CodeBlock title="curl" :code="curlTest" />
-        </div>
-      </section>
-
-      <section id="cc-switch" class="scroll-mt-24 space-y-4">
-        <SectionHeader number="3" title="cc-switch 使用教程" description="如果你使用 cc-switch 管理客户端配置，可以新增一组 ColdAPI 的 OpenAI 兼容配置。" />
-
-        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式一：一键导入</h3>
-          <ol class="space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
-            <li class="list-decimal">先安装并打开 cc-switch。</li>
             <li class="list-decimal">在 API 密钥列表中找到需要使用的密钥，点击操作栏里的 <InlineCode>导入到 CCS</InlineCode>，即可一键生成并导入 cc-switch 配置。</li>
             <li class="list-decimal">导入后在 cc-switch 中确认配置名称、Base URL、API Key 和模型信息，然后切换到该配置使用。</li>
+            <li class="list-decimal">如果不使用一键导入，也可以在 cc-switch 中手动新增 <InlineCode>ColdAPI</InlineCode> 配置，Base URL 填 <InlineCode>https://coldapi.site</InlineCode>，API Key 和模型名按上表填写。</li>
             <li class="list-decimal">切换到该配置后，重新打开终端，再运行 <InlineCode>codex</InlineCode> 测试。</li>
           </ol>
         </div>
@@ -157,20 +124,29 @@
         </figure>
 
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动配置</h3>
-          <ol class="mt-3 space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
-            <li class="list-decimal">打开 cc-switch，选择 Codex / OpenAI 兼容配置项。</li>
-            <li class="list-decimal">新增一个配置，例如命名为 <InlineCode>ColdAPI</InlineCode>。</li>
-            <li class="list-decimal">Base URL 填 <InlineCode>https://coldapi.site/v1</InlineCode>。</li>
-            <li class="list-decimal">API Key 填中转站生成的密钥，例如 <InlineCode>sk-你的中转站密钥</InlineCode>。</li>
-            <li class="list-decimal">模型名填写后台可用模型，需与中转站模型名保持一致。</li>
-            <li class="list-decimal">保存并切换到该配置后，重新打开终端，再运行 <InlineCode>codex</InlineCode> 测试。</li>
-          </ol>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动修改 .codex 文件</h3>
+          <p class="mt-3 text-sm text-gray-500 dark:text-dark-400">
+            打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\config.toml</InlineCode>，按下面示例填写中转站配置。
+          </p>
+          <CodeBlock title="config.toml" :code="codexConfig" />
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Codex Auth 配置</h3>
+          <p class="text-sm text-gray-500 dark:text-dark-400">
+            打开 <InlineCode>~/.codex/auth.json</InlineCode>，Windows 路径通常是 <InlineCode>C:\Users\用户名\.codex\auth.json</InlineCode>。如果文件不存在，请新建该文件。
+          </p>
+          <CodeBlock title="auth.json" :code="codexAuth" />
+        </div>
+
+        <div class="space-y-3">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">连通性测试</h3>
+          <CodeBlock title="curl" :code="curlTest" />
         </div>
       </section>
 
       <section id="faq" class="scroll-mt-24 space-y-4">
-        <SectionHeader number="4" title="常见问题" description="遇到报错时，优先检查 Base URL、API Key、模型名和 auth.json 文件。" />
+        <SectionHeader number="3" title="常见问题" description="遇到报错时，优先检查 Base URL、API Key、模型名和 auth.json 文件。" />
 
         <div class="space-y-3">
           <details
@@ -190,7 +166,7 @@
       </section>
 
       <footer class="pb-4 text-sm text-gray-500 dark:text-dark-400">
-        最后更新：2026-07-06。中转站：<InlineCode>https://coldapi.site</InlineCode>，OpenAI Base URL：<InlineCode>https://coldapi.site/v1</InlineCode>。
+        最后更新：2026-07-06。中转站：<InlineCode>https://coldapi.site</InlineCode>，OpenAI Base URL：<InlineCode>https://coldapi.site</InlineCode>。
       </footer>
     </div>
   </AppLayout>
@@ -227,7 +203,7 @@ model_provider = "coldapi"
 
 [model_providers.coldapi]
 name = "ColdAPI"
-base_url = "https://coldapi.site/v1"
+base_url = "https://coldapi.site"
 wire_api = "responses"
 requires_openai_auth = true`
 const codexAuth = `{
@@ -241,7 +217,6 @@ const curlTest = `curl https://coldapi.site/v1/responses \\
 const sections: SectionNavItem[] = [
   { id: 'codex', label: 'Codex 安装', icon: 'terminal' },
   { id: 'proxy', label: '配置中转站', icon: 'server' },
-  { id: 'cc-switch', label: 'cc-switch', icon: 'swap' },
   { id: 'faq', label: '常见问题', icon: 'questionCircle' },
 ]
 
@@ -253,7 +228,7 @@ const faqs: FaqItem[] = [
   },
   {
     question: '404 / endpoint not found',
-    answer: 'Base URL 应为 https://coldapi.site/v1。不要填成根地址，也不要重复添加 /v1/v1。',
+    answer: 'Base URL 应为 https://coldapi.site。不要填写 /v1，客户端会自动拼接接口路径。',
   },
   {
     question: 'model not found',
