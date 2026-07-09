@@ -26,7 +26,7 @@ echo "[1/4] Pulling latest code"
 git -C "${REPO_ROOT}" pull
 
 echo "[2/4] Building image: ${IMAGE_NAME}"
-docker build \
+DOCKER_BUILDKIT=1 docker build \
     -t "${IMAGE_NAME}" \
     --build-arg GOPROXY="${GOPROXY_VALUE}" \
     --build-arg GOSUMDB="${GOSUMDB_VALUE}" \
