@@ -38,6 +38,7 @@ const messages: Record<string, string> = {
   'keys.allGroups': 'All Groups',
   'keys.allStatus': 'All Status',
   'keys.columnSettings': 'Column Settings',
+  'keys.copied': 'Copied!',
   'keys.createKey': 'Create API Key',
   'keys.created': 'Created',
   'keys.expiresAt': 'Expires',
@@ -302,5 +303,18 @@ describe('user KeysView column settings', () => {
     expect(columnMenuText).toContain('Rate Limit')
     expect(columnMenuText).not.toContain('Name')
     expect(columnMenuText).not.toContain('Actions')
+  })
+
+  it('copies the base_url when the code frame is clicked', async () => {
+    copyToClipboard.mockResolvedValue(true)
+
+    const wrapper = await mountView()
+
+    const baseUrlCopy = wrapper.get('[data-test="base-url-copy"]')
+    expect(baseUrlCopy.attributes('title')).toBe('点击复制')
+
+    await baseUrlCopy.trigger('click')
+
+    expect(copyToClipboard).toHaveBeenCalledWith('https://coldapi.site', 'Copied!')
   })
 })

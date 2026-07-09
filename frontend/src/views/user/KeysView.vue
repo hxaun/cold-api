@@ -73,18 +73,23 @@
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <code
-              class="rounded-md border border-gray-200 bg-white/80 px-2.5 py-1 font-mono text-[11px] leading-5 text-gray-600 shadow-sm dark:border-dark-600 dark:bg-dark-800/80 dark:text-gray-300"
-            >base_url = "{{ displayBaseUrl }}"</code>
             <button
               type="button"
-              class="inline-flex h-6 w-6 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-white hover:text-primary-500 dark:text-gray-500 dark:hover:bg-dark-800 dark:hover:text-primary-400"
-              :class="copiedBaseUrl ? 'text-emerald-500 dark:text-emerald-400' : ''"
-              :title="copiedBaseUrl ? t('keys.copied') : t('keys.copyToClipboard')"
+              class="inline-flex min-w-0 items-center gap-2 rounded-md border border-gray-200 bg-white/80 px-2.5 py-1 font-mono text-[11px] leading-5 text-gray-600 shadow-sm transition-colors hover:border-primary-200 hover:bg-white hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-dark-600 dark:bg-dark-800/80 dark:text-gray-300 dark:hover:border-primary-500/40 dark:hover:bg-dark-800 dark:hover:text-primary-400"
+              :class="copiedBaseUrl ? 'border-emerald-200 text-emerald-600 dark:border-emerald-500/40 dark:text-emerald-400' : ''"
+              :title="copiedBaseUrl ? t('keys.copied') : '点击复制'"
               @click="copyBaseUrl"
+              data-test="base-url-copy"
             >
-              <Icon v-if="copiedBaseUrl" name="check" size="xs" :stroke-width="2" />
-              <Icon v-else name="clipboard" size="xs" />
+              <span class="truncate">base_url = "{{ displayBaseUrl }}"</span>
+              <Icon
+                v-if="copiedBaseUrl"
+                name="check"
+                size="xs"
+                class="flex-shrink-0"
+                :stroke-width="2"
+              />
+              <Icon v-else name="clipboard" size="xs" class="flex-shrink-0 text-gray-400" />
             </button>
           </div>
           <EndpointPopover
