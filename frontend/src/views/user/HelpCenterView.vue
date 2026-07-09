@@ -90,10 +90,29 @@
           </div>
         </div>
 
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式一：使用 cc-switch</h3>
+          <ol class="mt-3 space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
+            <li class="list-decimal">
+              下载并安装 cc-switch：
+              <a
+                href="https://github.com/farion1231/cc-switch/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-300 dark:hover:text-primary-200"
+              >
+                https://github.com/farion1231/cc-switch/releases
+              </a>
+            </li>
+            <li class="list-decimal">打开 cc-switch 后，按下方 cc-switch 使用教程导入或手动填写 ColdAPI 配置。</li>
+            <li class="list-decimal">切换到 ColdAPI 配置后，重新打开终端再运行 <InlineCode>codex</InlineCode>。</li>
+          </ol>
+        </div>
+
         <div class="space-y-3">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Codex 配置示例</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动修改 .codex 文件</h3>
           <p class="text-sm text-gray-500 dark:text-dark-400">
-            打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>%USERPROFILE%\.codex\config.toml</InlineCode>。
+            打开 <InlineCode>~/.codex/config.toml</InlineCode>，Windows 路径通常是 <InlineCode>%USERPROFILE%\.codex\config.toml</InlineCode>，按下面示例填写中转站配置。
           </p>
           <CodeBlock title="config.toml" :code="codexConfig" />
         </div>
@@ -116,18 +135,37 @@
         <SectionHeader number="3" title="cc-switch 使用教程" description="如果你使用 cc-switch 管理客户端配置，可以新增一组 ColdAPI 的 OpenAI 兼容配置。" />
 
         <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式一：一键导入</h3>
           <ol class="space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
-            <li class="list-decimal">安装并打开 cc-switch。</li>
-            <li class="list-decimal">选择 Codex / OpenAI 兼容配置项。</li>
-            <li class="list-decimal">新增一个配置，例如命名为 <InlineCode>ColdAPI</InlineCode>。</li>
-            <li class="list-decimal">Base URL 填 <InlineCode>https://coldapi.site/v1</InlineCode>。</li>
-            <li class="list-decimal">API Key 填中转站密钥，模型名填写后台可用模型。</li>
+            <li class="list-decimal">先安装并打开 cc-switch。</li>
+            <li class="list-decimal">在 API 密钥列表中找到需要使用的密钥，点击操作栏里的 <InlineCode>导入到 CCS</InlineCode>，即可一键生成并导入 cc-switch 配置。</li>
+            <li class="list-decimal">导入后在 cc-switch 中确认配置名称、Base URL、API Key 和模型信息，然后切换到该配置使用。</li>
             <li class="list-decimal">切换到该配置后，重新打开终端，再运行 <InlineCode>codex</InlineCode> 测试。</li>
           </ol>
         </div>
 
-        <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-200">
-          注意：当前只配置 OpenAI 兼容项，不配置 Claude / Anthropic 项。
+        <figure class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+          <img
+            :src="ccSwitchOneClickImage"
+            alt="API 密钥列表中的导入到 CCS 一键配置入口"
+            class="w-full"
+            loading="lazy"
+          />
+          <figcaption class="border-t border-gray-100 px-4 py-3 text-sm text-gray-500 dark:border-dark-700 dark:text-dark-300">
+            在 API 密钥页面点击“导入到 CCS”，即可把当前密钥快速写入 cc-switch 配置。
+          </figcaption>
+        </figure>
+
+        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-card dark:border-dark-700/50 dark:bg-dark-800/50">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">方式二：手动配置</h3>
+          <ol class="mt-3 space-y-2 pl-5 text-sm leading-6 text-gray-600 dark:text-dark-300">
+            <li class="list-decimal">打开 cc-switch，选择 Codex / OpenAI 兼容配置项。</li>
+            <li class="list-decimal">新增一个配置，例如命名为 <InlineCode>ColdAPI</InlineCode>。</li>
+            <li class="list-decimal">Base URL 填 <InlineCode>https://coldapi.site/v1</InlineCode>。</li>
+            <li class="list-decimal">API Key 填中转站生成的密钥，例如 <InlineCode>sk-你的中转站密钥</InlineCode>。</li>
+            <li class="list-decimal">模型名填写后台可用模型，需与中转站模型名保持一致。</li>
+            <li class="list-decimal">保存并切换到该配置后，重新打开终端，再运行 <InlineCode>codex</InlineCode> 测试。</li>
+          </ol>
         </div>
       </section>
 
@@ -163,6 +201,7 @@ import { defineComponent, h } from 'vue'
 import AppLayout from '@/components/layout/AppLayout.vue'
 import Icon from '@/components/icons/Icon.vue'
 import { useClipboard } from '@/composables/useClipboard'
+import ccSwitchOneClickImage from '@/assets/help/cc-switch-one-click-config.png'
 
 type IconName = InstanceType<typeof Icon>['$props']['name']
 
